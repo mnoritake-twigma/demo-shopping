@@ -1,10 +1,10 @@
-# API契約とPayload移行
+# API契約（MSW / NestJS / Payload）
 
 ## 層の境界
 
 `features/* → api/client.ts → HTTP /api/* → mocks/handlers.ts → mocks/service.ts → mocks/seed.ts`
 
-UIはseedをimportしない。API_MODE=mockではMSWのService WorkerがHTTPを処理する。モックは別の実サーバーではなくブラウザ内で動く。商品は8件、3カテゴリー。カートの保存先は同一ブラウザ／同一originのlocalStorage（`pulse-store.cart.v1`）。複数タブ／複数ユーザー間の同時更新やサーバー永続化は対象外。
+UIはseedをimportしない。API_MODE=mockではMSWのService WorkerがHTTPを処理する。モックは別の実サーバーではなくブラウザ内で動く。商品は8件、3カテゴリー。カートの保存先は同一ブラウザ／同一originのlocalStorage（`pulse-store.cart.v1`）。これはモックモードだけの制約です。Docker版ではNestJS/PrismaとPayloadの独立したPostgreSQLに保存します。起動手順は [BACKENDS.md](BACKENDS.md) を参照してください。
 
 ## エンドポイント
 
@@ -32,17 +32,23 @@ UIはseedをimportしない。API_MODE=mockではMSWのService WorkerがHTTPを�
 
 固定ID `prd-001` 等はデモ用の外部商品ID。PayloadのDBが自動採番するIDにそのまま置き換えると、保存済みカート参照が壊れる。`externalId` 一意フィールドを設け、APIアダプターで変換する。
 
-## Payload接続手順（本タスクでは未接続）
+## 実APIの認証とPayload接続
 
-1. 検証環境にcategories/products/cartsを作る。`payload-blueprint.json` がフィールド定義の移行用資料、`seed-products.json` が商品データ。blueprintはPayload実行設定ではない。
-2. カテゴリー→商品→画像の順に登録。カテゴリーはrelationship、画像はmedia uploadへ変換する。seedの相対URLを利用する場合はこのpublic/productsの写真を同じホストへ置く。
-3. custom endpointまたはBFFで上表の契約を実装する。**Payload標準RESTにURLを差し替えるだけでは動かない**。q/categoryはPayloadのwhere、category/mediaの展開値はこのProduct型に変換し、cartの価格再計算・在庫検証はサーバー側へ移す。
-4. カート所有者はサーバーがセッションから決定。リクエストで渡されたuserIdを信用しない。認証Cookie、CORS（フロントのoriginを限定）、CSRF、アクセス制御、入力検証を構成する。APIキー／管理者秘密情報をVITE変数に入れない。
-5. `.env.local` に `VITE_API_MODE=remote` と `VITE_API_BASE_URL=https://your-payload.example/api` を設定して再起動／再ビルド。自動fallbackはしないため、接続失敗をUIで確認できる。
-6. 同じシナリオで検索、404、409、数量変更、所有者分離、再読み込み、通信失敗を検証。追加時・注文確定時の在庫検証とトランザクションは本番化時に必要。
+両バックエンドで同じエンドポイントを使用します。Dockerのフロントからは `/api`、Payloadへ直接接続する場合は `/shop-api` がベースURLです。Payload標準の `/api` は管理者用で、Shop APIと別です。
 
-Payloadの公式RESTはコレクションのCRUDとcustom endpointを提供する。ここでは互換DTOを挟んでEC画面を維持する設計を選択した。
-参照: https://payloadcms.com/docs/rest-api/overview / https://payloadcms.com/docs/configuration/collections
+| method | path（ベースURL相対） | 入出力 |
+| --- | --- | --- |
+| GET | `/health` | DB疎通とbackend名 |
+| POST | `/session` | `{}` → 既存セッションまたは新規ゲスト、HttpOnly Cookie |
+| GET | `/auth/me` | `{user:{id,name,email,kind}}` |
+| POST | `/auth/login` | `{email,password}` → 会員と新しいCookie |
+| POST | `/auth/logout` | `{}` → セッション削除とCookie失効 |
+
+商品閲覧は認証不要。カートにはセッションが必要で、未認証は401。所有者はCookieから決定し、quantity以外の書き込みフィールドを拒否します。Originは許可リスト方式（不正originは403）、POST/PUTはJSONのみ（415）。ログイン試行は同一接続元で15分10回（429）。商品は固定外部IDで共通化し、Payload内部IDをDTOに露出しません。サーバー側で価格・送料・在庫を検証します。
+
+既存Cookieは `pulse_native`、検証Cookieは `pulse_payload`。ショップ会員とPayload管理者は別コレクションです。ゲストカートの会員への統合はありません。カートは在庫を予約せず、同一商品の同時更新は最後の数量が有効です。認証トークン・管理者パスワード・DB接続文字列をVITE変数に入れないでください。
+
+`payload-blueprint.json` は初期設計資料です。**実行設定の正本は `backend/payload/src/payload.config.ts` とコミット済みmigration**です。
 
 ## 将来の拡張点（初期状態には存在しない）
 

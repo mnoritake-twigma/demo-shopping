@@ -16,3 +16,23 @@ jobs:
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+
+  backends:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node scripts/init-docker.mjs
+      - run: docker compose --env-file .env.docker --profile payload up -d --build --wait --wait-timeout 180
+      - run: RESTART_TEST=1 node --env-file=.env.docker --test backend/tests/contract.test.mjs
+      - run: npx playwright install --with-deps chromium
+      - run: node --env-file=.env.docker node_modules/@playwright/test/cli.js test -c playwright.backend.config.ts
+      - if: failure()
+        run: docker compose --env-file .env.docker --profile payload logs --tail 80
+      - if: always()
+        run: docker compose --env-file .env.docker --profile payload down

@@ -14,3 +14,5 @@
 
 .results-toolbar>.select-container{width:180px;flex:none}.results-toolbar>p{white-space:nowrap}
 @media(max-width:700px){.results-toolbar>.select-container{width:160px}}
+
+.account-page{max-width:560px;min-height:480px;margin:48px auto;padding:0 24px}.account-page h1{font-size:32px;margin:16px 0}.account-page p{margin:16px 0;line-height:1.8}.account-page form{display:grid;gap:20px;margin:28px 0}.account-page>a{display:inline-block;margin-top:24px}

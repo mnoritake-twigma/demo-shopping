@@ -5,3 +5,8 @@ dist/
 playwright-report/
 test-results/
 .DS_Store
+
+.env.docker
+.next/
+*.tsbuildinfo
+backend/nest/src/generated/
