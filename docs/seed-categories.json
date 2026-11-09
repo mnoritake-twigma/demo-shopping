@@ -1,0 +1,17 @@
+[
+  {
+    "id": "furniture",
+    "name": "家具・照明",
+    "label": "FURNITURE"
+  },
+  {
+    "id": "living",
+    "name": "生活雑貨",
+    "label": "LIVING"
+  },
+  {
+    "id": "work",
+    "name": "ワークアイテム",
+    "label": "WORK"
+  }
+]

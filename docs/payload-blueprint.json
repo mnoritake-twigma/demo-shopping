@@ -1,0 +1,57 @@
+{
+  "note": "Migration blueprint, not an executable Payload config. Add access rules, hooks and custom endpoints in the target environment.",
+  "collections": [
+    {
+      "slug": "categories",
+      "fields": {
+        "externalId": "text, unique, required",
+        "name": "text, required",
+        "label": "text"
+      }
+    },
+    {
+      "slug": "products",
+      "fields": {
+        "externalId": "text, unique, required",
+        "slug": "text, unique, required",
+        "name": "text, required",
+        "subtitle": "text",
+        "description": "textarea",
+        "category": "relationship -> categories",
+        "price": "number, min 0, integer (JPY)",
+        "currency": "select: JPY",
+        "stock": "number, min 0, integer",
+        "image": "upload -> media",
+        "imageAlt": "text",
+        "material": "text",
+        "dimensions": "text",
+        "color": "text",
+        "featured": "checkbox"
+      },
+      "read": "public published products",
+      "write": "administrator only"
+    },
+    {
+      "slug": "carts",
+      "fields": {
+        "owner": "relationship -> users OR server-controlled anonymous session",
+        "items": "array of {product: relationship -> products, quantity: positive integer}"
+      },
+      "readWrite": "own cart only; resolve ownership from authenticated session"
+    }
+  ],
+  "mapping": {
+    "product.id": "products.externalId",
+    "product.category": "categories.externalId from expanded relationship",
+    "product.image": "media.url as absolute URL",
+    "createdAt": "Payload timestamp; import original date into publishedAt if needed"
+  },
+  "customEndpoints": [
+    "GET /products (query adapter)",
+    "GET /products/:externalId",
+    "GET /categories (DTO adapter)",
+    "GET /cart",
+    "PUT /cart/items/:externalId",
+    "DELETE /cart/items/:externalId"
+  ]
+}

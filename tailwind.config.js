@@ -1,0 +1,1 @@
+export default { content: ["./index.html", "./src/**/*.{ts,tsx}"], corePlugins: { preflight: false }, theme: { extend: { colors: { ink: "var(--sds-color-text-default-default)", muted: "var(--sds-color-text-default-secondary)" }, spacing: { ds: "var(--sds-size-space-400)" } } } };
