@@ -1,0 +1,92 @@
+name: pulse-shopping
+services:
+  native-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: pulse
+      POSTGRES_PASSWORD: ${NATIVE_DB_PASSWORD:?Run node scripts/init-docker.mjs first}
+      POSTGRES_DB: shop
+    volumes: [native-db:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U pulse -d shop]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  native-api:
+    build: { context: ., dockerfile: docker/api.Dockerfile }
+    environment:
+      DATABASE_URL: postgresql://pulse:${NATIVE_DB_PASSWORD}@native-db:5432/shop
+      DEMO_PASSWORD: ${DEMO_PASSWORD:?Initialize demo credentials}
+      ALLOWED_ORIGINS: http://localhost:8080,http://127.0.0.1:8080
+      PORT: 3001
+    ports: ["127.0.0.1:3001:3001"]
+    depends_on:
+      native-db: { condition: service_healthy }
+    healthcheck:
+      test:
+        [
+          CMD,
+          node,
+          -e,
+          "fetch('http://localhost:3001/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+  native-web:
+    build: { context: ., dockerfile: docker/web.Dockerfile }
+    environment:
+      API_UPSTREAM: http://native-api:3001/api/
+    ports: ["127.0.0.1:8080:80"]
+    depends_on:
+      native-api: { condition: service_healthy }
+  payload-db:
+    profiles: [payload]
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: pulse
+      POSTGRES_PASSWORD: ${PAYLOAD_DB_PASSWORD:?Initialize demo credentials}
+      POSTGRES_DB: validation
+    volumes: [payload-db:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U pulse -d validation]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  payload-api:
+    profiles: [payload]
+    build: { context: ., dockerfile: docker/payload.Dockerfile }
+    environment:
+      DATABASE_URL: postgresql://pulse:${PAYLOAD_DB_PASSWORD}@payload-db:5432/validation
+      DEMO_PASSWORD: ${DEMO_PASSWORD}
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?Initialize demo credentials}
+      PAYLOAD_ADMIN_EMAIL: ${PAYLOAD_ADMIN_EMAIL}
+      PAYLOAD_ADMIN_PASSWORD: ${PAYLOAD_ADMIN_PASSWORD}
+      ALLOWED_ORIGINS: http://localhost:8081,http://127.0.0.1:8081,http://localhost:3002
+    ports: ["127.0.0.1:3002:3002"]
+    depends_on:
+      payload-db: { condition: service_healthy }
+    healthcheck:
+      test:
+        [
+          CMD,
+          node,
+          -e,
+          "fetch('http://localhost:3002/shop-api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+      start_period: 30s
+  payload-web:
+    profiles: [payload]
+    build: { context: ., dockerfile: docker/web.Dockerfile }
+    environment:
+      API_UPSTREAM: http://payload-api:3002/shop-api/
+    ports: ["127.0.0.1:8081:80"]
+    depends_on:
+      payload-api: { condition: service_healthy }
+volumes:
+  native-db:
+  payload-db:

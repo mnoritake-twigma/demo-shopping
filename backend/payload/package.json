@@ -1,0 +1,38 @@
+{
+  "name": "pulse-payload-validation",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3002",
+    "build": "next build --webpack",
+    "start": "next start -p 3002",
+    "generate": "payload generate:importmap",
+    "migrate": "payload migrate",
+    "migrate:create": "payload migrate:create",
+    "seed": "tsx src/seed.ts"
+  },
+  "dependencies": {
+    "@payloadcms/db-postgres": "3.93.0",
+    "@payloadcms/next": "3.93.0",
+    "graphql": "^16.11.0",
+    "next": "16.4.5",
+    "payload": "3.93.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "tsx": "^4.20.0",
+    "typescript": "~5.9.3"
+  },
+  "engines": {
+    "node": ">=24.22.1"
+  },
+  "overrides": {
+    "dompurify": "3.4.17"
+  }
+}

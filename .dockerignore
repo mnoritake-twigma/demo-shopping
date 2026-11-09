@@ -1,0 +1,9 @@
+**/node_modules
+**/dist
+**/.next
+**/.git
+**/.env*
+**/test-results
+**/playwright-report
+**/*.tsbuildinfo
+backend/nest/src/generated

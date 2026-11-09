@@ -1,0 +1,35 @@
+{
+  "name": "pulse-existing-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "prisma generate",
+    "build": "npm run generate && tsc -p tsconfig.json",
+    "start": "node dist/nest/src/main.js",
+    "migrate": "prisma migrate deploy",
+    "seed": "node dist/nest/src/seed.js"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.0",
+    "@nestjs/core": "^11.1.0",
+    "@nestjs/platform-express": "^11.1.0",
+    "@prisma/client": "7.10.1",
+    "@prisma/adapter-pg": "7.10.1",
+    "pg": "^8.16.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "prisma": "7.10.1",
+    "typescript": "~5.9.3",
+    "@types/node": "^24.0.0",
+    "@types/express": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=24.22.1"
+  },
+  "overrides": {
+    "multer": "2.5.0"
+  }
+}

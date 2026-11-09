@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client"
+  output = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+datasource db {
+  provider = "postgresql"
+}
+model Category {
+  id String @id
+  name String
+  label String
+  products Product[]
+}
+model Product {
+  id String @id
+  slug String @unique
+  name String
+  subtitle String
+  description String
+  category String
+  categoryRecord Category @relation(fields:[category],references:[id])
+  price Int
+  currency String @default("JPY")
+  stock Int
+  image String
+  imageAlt String
+  material String
+  dimensions String
+  color String
+  featured Boolean @default(false)
+  createdAt DateTime
+  lines CartLine[]
+}
+model User {
+  id String @id
+  email String? @unique
+  name String
+  kind String
+  passwordHash String?
+  sessions Session[]
+  lines CartLine[]
+}
+model Session {
+  tokenHash String @id
+  userId String
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+  expiresAt DateTime
+  @@index([expiresAt])
+}
+model CartLine {
+  userId String
+  productId String
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+  product Product @relation(fields:[productId],references:[id],onDelete:Cascade)
+  quantity Int
+  @@id([userId,productId])
+}

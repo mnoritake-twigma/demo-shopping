@@ -42,3 +42,25 @@
 DSリポジトリのGitHub Actionsでも npm package checks と Validate PULSE Code Connect が成功。初回公開対象は `@mnoritake-figma/ds@0.1.0`、検証済みtarballのSHA-1は `8e507de6b5c0a6ebc472a790217429f6ad0c7a9b`。
 
 公開npmレジストリで同じSHA-1を確認し、ECサイトは `@mnoritake-figma/ds` をバージョン `0.1.0` に固定。package-lock.jsonもregistry.npmjs.orgの配布URLへ更新済み。
+
+## 独立バックエンド追加（2026-11-09）
+
+Docker Desktop / Node 24.22.2コンテナ、PostgreSQL 17、Prisma 7.10.1、Payload 3.93.0で検証。
+
+| 項目 | 結果 |
+| --- | --- |
+| NestJS・Payload・ReactのDockerビルド | 成功、6サービス起動 |
+| 既存モック単体/APIテスト | 15件成功 |
+| 既存フロントE2E | 10件成功 |
+| 実API契約・認証・保存テスト | 11件成功（親テスト3＋サブテスト8） |
+| 実API画面テスト | 6件成功（両バックエンド×PC/スマホ＋Payload管理ログイン画面2）、NestJSに存在しない管理画面の2枠は対象外 |
+| アカウント画面のaxe検査 | 対象ルールの違反0、PC・390pxで横スクロールなし |
+| 会員分離 | Alice/Bob/ゲストのカート分離、所有者・価格の不正フィールド拒否 |
+| 保存 | API＋DB再起動後に既存セッションと会員カートを保持 |
+| 環境分離 | Payload管理APIで変更した在庫がNestJS側に影響しない |
+| 初期化 | 各環境のseedリセット成功、起動時seedは既存データを保持 |
+| 依存監査 | NestJS 0。Payload低6・中5・高0・重大0 |
+
+Payloadの残存指摘はdeepmerge（低、上流の修正版なし）とDrizzleの開発用esbuild依存（中）に由来します。開発用esbuildサーバーはこの構成で公開していません。npm auditの強制修正が提示するPayload DBアダプター0.1.9への後退は適用していません。DOMPurifyは3.4.17、sharpは0.35.5、NestJSのmulterは2.5.0へ更新し、高・重大を解消しています。これはセキュリティ適合の保証ではなく、ローカル検証用です。
+
+旧節の「Payload・認証は未検証」は初期モック版の記録です。現在は上記のローカルPayload、認証、ユーザー分離を検証済みです。Figma/Makeへの実接続、決済・注文、実機Safari、外部HTTPS配備は引き続き対象外です。

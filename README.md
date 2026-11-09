@@ -20,7 +20,7 @@ npm run dev
 - カート追加／数量変更／削除、税込価格・送料・合計、再読み込み後の保持
 - PC／スマートフォン対応
 
-比較・お気に入り・お問い合わせは、次のデモで追加するため**未実装**です。決済・注文作成・認証もありません。
+比較・お気に入り・お問い合わせは、次のデモで追加するため**未実装**です。決済・注文作成はありません。Docker版ではゲストセッションと会員ログインに対応します。
 
 ## フォルダー
 
@@ -46,9 +46,16 @@ npm run test:e2e
 
 [品質検証](docs/QA.md) / [DS調査と再利用の制約](docs/DESIGN-SYSTEM.md) / [API・Payload移行](docs/API.md) / [デモ手順と追加機能の境界](docs/DEMO-GUIDE.md)
 
-## Payloadへ切り替える
+## バックエンド・DB付きで起動
 
-`.env.example`を参考に`.env.local`を作り、`VITE_API_MODE=remote` と `VITE_API_BASE_URL` を設定して再起動／再ビルドします。Payload標準RESTとはクエリとカートの契約が異なるため、[API.md](docs/API.md)に従ってcustom endpointまたはアダプターを実装してください。実環境への接続は本タスクの検証対象外です。
+```sh
+node scripts/init-docker.mjs
+docker compose --env-file .env.docker --profile payload up -d --build
+```
+
+既存側は http://localhost:8080 （React＋NestJS＋Prisma＋PostgreSQL）、検証側は http://localhost:8081 （同じReact＋Payload＋別PostgreSQL）。管理画面は http://localhost:3002/admin 。
+
+認証情報・停止・リセット・テスト・Figma接続の範囲は [BACKENDS.md](docs/BACKENDS.md) を参照してください。新しいリポジトリは不要です。追加作業ブランチは `codex/dual-backend`。
 
 ## GitHubへの配置
 

@@ -45,6 +45,7 @@ test('remote API error and retry, cart failure preserves state',async({page})=>{
   let fail=true;
   await page.route('http://127.0.0.1:5174/api/**',async route=>{
     const url=new URL(route.request().url());
+    if(url.pathname==='/api/session')return route.fulfill({json:{user:{id:'guest-test',name:'ゲスト',kind:'guest',email:null}}});
     if(url.pathname==='/api/cart')return route.fulfill({json:empty});
     if(url.pathname.startsWith('/api/cart/items/'))return route.fulfill({status:409,json:{errors:[{message:'在庫が変更されました。再試行してください。'}]}});
     if(url.pathname==='/api/categories')return route.fulfill({json:{docs:categories}});
