@@ -1,77 +1,121 @@
 # PULSE STORE
 
-React 18 + Vite 6 + Tailwind 3 + TypeScriptの独立したECデモ。npmパッケージ `@mnoritake-figma/ds` のコンポーネントとCSSを利用しています。
+商品検索・詳細・カート・ゲスト／会員ログインを備えたECデモです。**フロント・バックエンド・DBをすべてDockerで動かします。** ホスト側での `npm ci` や `npm run dev` は不要です。
 
-## 起動
+## ローカルで使う
 
-Node.js 20.19以降（推奨22）、npmが必要です。
+Docker Desktopを起動し、このプロジェクトのディレクトリで操作します。
 
 ```sh
-npm ci
-npm run dev
+cd /Users/mnoritake/Documents/ChatGPT/demo-shopping
 ```
 
-表示されたローカルURL（通常 http://127.0.0.1:5173 ）を開きます。追加のAPIキー・Figmaトークン・DBは不要。初期状態はAPIモックです。Service Workerが必要なのでlocalhostまたはHTTPSで起動してください。index.htmlを直接開く方法には対応していません。
+この作業環境はセットアップ済みです。既存の認証情報 `.env.docker` を引き継いでいるため、認証情報の生成やリポジトリの再取得は不要です。
 
-## 機能
+### 1. 起動する
+
+```sh
+docker compose --env-file .env.docker --profile payload up -d --wait --wait-timeout 180
+```
+
+既存側とPayload検証側の計6サービスをまとめて起動します。すでに起動している場合は、そのまま次のURLを開けます。
+
+### 2. ブラウザで開く
+
+| 用途 | URL |
+| --- | --- |
+| 既存サイト：React＋NestJS＋Prisma＋PostgreSQL | [http://localhost:8080](http://localhost:8080) |
+| 検証サイト：同じReact＋Payload＋独立PostgreSQL | [http://localhost:8081](http://localhost:8081) |
+| Payload管理画面 | [http://localhost:3002/admin](http://localhost:3002/admin) |
+
+ゲストでも商品閲覧・カート操作ができます。会員ごとのカートと、既存側・検証側のDBはそれぞれ独立しています。
+
+ログイン情報は `.env.docker` をローカルのエディタで確認してください。
+
+- ショップ会員：`alice@example.test` または `bob@example.test`。パスワードは `DEMO_PASSWORD`。
+- Payload管理者：`PAYLOAD_ADMIN_EMAIL` と `PAYLOAD_ADMIN_PASSWORD`。
+
+`.env.docker` はGit管理対象外です。内容を公開・コミットしないでください。既存DBと対応するため、作り直さずに使います。
+
+### 3. 使い終わったら停止する
+
+```sh
+docker compose --env-file .env.docker --profile payload down
+```
+
+DBの保存内容は残ります。次回は「1. 起動する」のコマンドで再開します。**`down -v` はDBの保存内容を削除するため使用しないでください。**
+
+## コードの変更を反映する
+
+フロント・バックエンドを編集した後は、再ビルドして起動します。
+
+```sh
+docker compose --env-file .env.docker --profile payload up -d --build --wait --wait-timeout 180
+```
+
+コンテナ内で依存パッケージのインストールとビルドが実行されます。DBの保存内容は維持されます。現在の構成では、ソースを保存するだけで画面へ自動反映はされません。
+
+Composeプロジェクト名は `pulse-shopping` です。このディレクトリから既存のコンテナとDBボリュームを管理します。旧作業フォルダーから別途起動したり、プロジェクト名を変えて重複起動したりする必要はありません。
+
+## 起動できないとき
+
+まずDocker Desktopが起動していることを確認します。
+
+```sh
+# コンテナの状態
+docker compose --env-file .env.docker --profile payload ps
+
+# APIの直近のログ
+docker compose --env-file .env.docker --profile payload logs --tail 80 native-api payload-api
+```
+
+- `.env.docker` がない場合：既存DBを使う環境では、元のファイルを復元してください。
+- ポートが使用中の場合：8080・8081・3001・3002を使っている別のアプリを確認してください。
+
+## 別のPCに新規セットアップする場合のみ
+
+普段の起動ではこの手順は不要です。Docker DesktopとGitを用意し、非公開リポジトリへアクセスできるアカウントで取得します。
+
+```sh
+git clone --branch codex/dual-backend https://github.com/mnoritake-twigma/demo-shopping.git
+cd demo-shopping
+```
+
+既存DBを引き継ぐ場合は、そのDBで使用していた `.env.docker` も安全に引き継いでください。**DBも認証情報も新しく作る場合だけ**、次のコマンドで初期化します。Node.jsはDocker内で実行するため、ホストへのインストールは不要です。
+
+```sh
+docker run --rm --mount "type=bind,source=$PWD,target=/app" -w /app node:24-alpine node scripts/init-docker.mjs
+```
+
+続けてビルド・起動します。
+
+```sh
+docker compose --env-file .env.docker --profile payload up -d --build --wait --wait-timeout 180
+```
+
+初回はイメージや依存パッケージの取得に数分かかります。DBのマイグレーションと架空の商品・会員データの投入は自動です。通常の起動では既存データを上書きしません。
+
+## 実装範囲と開発資料
 
 - 8商品の一覧・検索、カテゴリー／価格／在庫フィルター、並び替え
-- 商品詳細、在庫切れ・商品不明・空状態・通信失敗
-- カート追加／数量変更／削除、税込価格・送料・合計、再読み込み後の保持
-- PC／スマートフォン対応
+- 商品詳細、カート追加／数量変更／削除、税込価格・送料・合計、DB保存
+- ゲストセッション・会員ログイン、PC／スマートフォン対応
 
-比較・お気に入り・お問い合わせは、次のデモで追加するため**未実装**です。決済・注文作成はありません。Docker版ではゲストセッションと会員ログインに対応します。
+比較・お気に入り・お問い合わせ・決済・注文は未実装です。公開済みSitesデモはAPIモック版で、このDocker環境には接続していません。
 
-## フォルダー
+フロントはReact 18＋Vite 6＋Tailwind 3＋TypeScript、UI部品は `@mnoritake-figma/ds@0.1.0` を使用しています。
 
-```text
-src/
-  features/catalog/   商品一覧・商品カード・詳細
-  features/cart/      カート状態・画面
-  api/client.ts       HTTP境界（画面はseedを参照しない）
-  domain/models.ts    共通DTO
-  mocks/              ダミーデータ・API処理・モックルーター
-public/products/      ローカル保存したデモ写真
-public/mockServiceWorker.js
-```
+| 場所 | 内容 |
+| --- | --- |
+| `src/` | Reactフロント、APIクライアント |
+| `backend/nest/` | 既存側のNestJS＋Prisma |
+| `backend/payload/` | 検証側のPayload |
+| `backend/shared/` | 共通のAPI・認証・価格・在庫・送料ルール |
+| `compose.yaml`, `docker/` | Dockerの起動・ビルド設定 |
 
-## 検証
+[バックエンド構成・開発者向けテスト手順](docs/BACKENDS.md) / [API契約](docs/API.md) / [品質検証記録](docs/QA.md) / [デモ手順](docs/DEMO-GUIDE.md) / [DS利用ルール](docs/DESIGN-SYSTEM.md)
 
-```sh
-npm run build
-npm test
-npx playwright install chromium
-npm run test:e2e
-```
-
-[品質検証](docs/QA.md) / [DS調査と再利用の制約](docs/DESIGN-SYSTEM.md) / [API・Payload移行](docs/API.md) / [デモ手順と追加機能の境界](docs/DEMO-GUIDE.md)
-
-## バックエンド・DB付きで起動
-
-```sh
-node scripts/init-docker.mjs
-docker compose --env-file .env.docker --profile payload up -d --build
-```
-
-既存側は http://localhost:8080 （React＋NestJS＋Prisma＋PostgreSQL）、検証側は http://localhost:8081 （同じReact＋Payload＋別PostgreSQL）。管理画面は http://localhost:3002/admin 。
-
-認証情報・停止・リセット・テスト・Figma接続の範囲は [BACKENDS.md](docs/BACKENDS.md) を参照してください。新しいリポジトリは不要です。追加作業ブランチは `codex/dual-backend`。
-
-## GitHubへの配置
-
-GitHubリポジトリ: **[mnoritake-twigma/demo-shopping](https://github.com/mnoritake-twigma/demo-shopping)**。DSのリポジトリは変更していません。
-
-このフォルダーはローカルGitとして用意されています。Sitesのプレビュー配布用remoteとGitHubを区別するため、GitHubは`github`というremote名にします。既存チェックアウトには `github` remoteを設定済みです。別のチェックアウトから接続する場合:
-
-```sh
-git remote add github https://github.com/mnoritake-twigma/demo-shopping.git
-git push -u github main
-git push -u github codex/ec-baseline
-```
-
-初期ベースのブランチ: `codex/ec-baseline`。後続機能はこのベースから別ブランチで作業できます。ローカルフォルダーを新しいPCへコピーした場合、`.git`を含めない配布ZIPにはGit履歴がないので `git init -b main` → `git add .` → `git commit -m "Add EC baseline"` → `git branch codex/ec-baseline` を先に実行してください。
-
-Sitesの公開設定は`.openai/hosting.json`に入っています。別のSiteとして展開する場合、元のSiteへ上書きしないよう、新規Site登録時にIDを発行してください。
+リンク先のnpmコマンドは開発者向けのテスト用です。通常の起動に実行する必要はありません。
 
 ## 素材・ライセンス
 
