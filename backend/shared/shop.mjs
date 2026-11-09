@@ -1,3 +1,4 @@
+import { createOpenAPI } from "./openapi.mjs";
 import {
   createHash,
   randomBytes,
@@ -157,6 +158,8 @@ export function createShop(repository, options = {}) {
         !headers["content-type"]?.startsWith("application/json")
       )
         throw new ShopError(415, "JSON形式で送信してください。");
+      if (method === "GET" && path === "/openapi.json")
+        return { status: 200, body: createOpenAPI({ backend: options.backend, cookieName }) };
       const rawCookie = (headers.cookie ?? "")
         .split(";")
         .map((v) => v.trim())

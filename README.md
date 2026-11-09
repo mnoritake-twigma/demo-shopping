@@ -45,6 +45,33 @@ docker compose --env-file .env.docker --profile payload down
 
 DBの保存内容は残ります。次回は「1. 起動する」のコマンドで再開します。**`down -v` はDBの保存内容を削除するため使用しないでください。**
 
+## 初回起動で入るテストデータ
+
+Docker起動時に **DBマイグレーション → seed → API起動** を自動実行します。手動でseedコマンドを実行する必要はありません。
+
+| データ | 既存側 | Payload検証側 |
+| --- | --- | --- |
+| 架空の商品 | 8件 | 同じ8件 |
+| カテゴリー | 3件 | 同じ3件 |
+| ショップ会員 | Alice・Bobの2名 | 同じ2名 |
+| Payload管理者 | なし | `.env.docker` の管理者1名 |
+| カート・セッション | 初期データなし。利用時に作成 | 初期データなし。利用時に作成 |
+
+商品とカテゴリーの元データは `docs/seed-products.json` と `docs/seed-categories.json`、会員の定義は `backend/shared/seed.mjs` です。ログイン情報は上の「ブラウザで開く」を参照してください。
+
+seedは起動のたびに不足している初期レコードだけを追加します。既存の商品編集・在庫・会員パスワード・カートは上書きしません。初期商品を削除した場合は、次回起動で再作成されます。両環境は独立したDBへ投入するため、その後の編集は相互に反映されません。
+
+## APIドキュメントを見る
+
+Docker起動後、Swagger UIでエンドポイント・入力・応答・認証条件を確認できます。
+
+| 環境 | ドキュメント | OpenAPI JSON |
+| --- | --- | --- |
+| 既存側 | [Swagger UI](http://localhost:8080/api-docs/) | [openapi.json](http://localhost:8080/api/openapi.json) |
+| Payload検証側 | [Swagger UI](http://localhost:8081/api-docs/) | [openapi.json](http://localhost:8081/api/openapi.json) |
+
+「Try it out」はGETのみ実行できます。認証が必要なGETは、同じ環境のショップ画面でログインしてから試してください。POST・PUT・DELETEは仕様の閲覧のみです。Payload標準の管理APIは対象外です。
+
 ## コードの変更を反映する
 
 フロント・バックエンドを編集した後は、再ビルドして起動します。
