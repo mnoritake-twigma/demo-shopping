@@ -27,6 +27,7 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - run: node --test backend/tests/openapi.test.mjs
       - run: node scripts/init-docker.mjs
       - run: docker compose --env-file .env.docker --profile payload up -d --build --wait --wait-timeout 180
       - run: RESTART_TEST=1 node --env-file=.env.docker --test backend/tests/contract.test.mjs

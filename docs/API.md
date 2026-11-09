@@ -1,5 +1,11 @@
 # API契約（MSW / NestJS / Payload）
 
+## OpenAPI / Swagger UI
+
+Docker起動後、[既存側](http://localhost:8080/api-docs/)・[Payload検証側](http://localhost:8081/api-docs/)で共通Shop APIの仕様を閲覧できます。各環境の `/api/openapi.json` からOpenAPI 3.0.3形式で取得できます。APIへ直接アクセスする場合は、NestJSが `http://localhost:3001/api/openapi.json`、Payloadが `http://localhost:3002/shop-api/openapi.json` です。
+
+仕様の実装は `backend/shared/openapi.mjs`、配信は共通Shop APIです。契約を変更した際は仕様も更新してください。Swagger UIのアセットはDockerイメージに同梱し、外部CDNやオンラインvalidatorには接続しません。ドキュメント画面で実行できるのはGETだけです。カート・会員情報のGETには同じ環境のショップ画面でログインしてください。
+
 ## 層の境界
 
 `features/* → api/client.ts → HTTP /api/* → mocks/handlers.ts → mocks/service.ts → mocks/seed.ts`
