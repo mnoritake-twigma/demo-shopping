@@ -2,7 +2,7 @@
 
 React 18 + Vite 6 + Tailwind 3 + TypeScriptの独立したECデモ。npmパッケージ `@mnoritake-figma/ds` のコンポーネントとCSSを利用しています。
 
-## 起動
+## フロントだけ起動（APIモック）
 
 Node.js 20.19以降（推奨22）、npmが必要です。
 
@@ -46,16 +46,92 @@ npm run test:e2e
 
 [品質検証](docs/QA.md) / [DS調査と再利用の制約](docs/DESIGN-SYSTEM.md) / [API・Payload移行](docs/API.md) / [デモ手順と追加機能の境界](docs/DEMO-GUIDE.md)
 
-## バックエンド・DB付きで起動
+## Dockerでローカル起動（フロント・バックエンド・DB）
+
+### 事前準備
+
+- Docker Desktopをインストールして起動します（Docker Composeを使用）。
+- GitとNode.jsを用意します。Node.jsは認証情報の初期化に使用し、24.22.1以降を推奨します。
+- GitHubの非公開リポジトリ `mnoritake-twigma/demo-shopping` を取得できるアカウントで認証します。
+- ポート8080・8081・3001・3002が空いていることを確認します。
+
+フロント・API・PostgreSQLはコンテナ内で動きます。ホストへのPostgreSQLのインストールや、起動前の `npm ci` は不要です。
+
+### 初回起動
+
+Docker構成は `codex/dual-backend` ブランチにあります。新しく取得する場合:
 
 ```sh
-node scripts/init-docker.mjs
-docker compose --env-file .env.docker --profile payload up -d --build
+git clone --branch codex/dual-backend https://github.com/mnoritake-twigma/demo-shopping.git
+cd demo-shopping
 ```
 
-既存側は http://localhost:8080 （React＋NestJS＋Prisma＋PostgreSQL）、検証側は http://localhost:8081 （同じReact＋Payload＋別PostgreSQL）。管理画面は http://localhost:3002/admin 。
+すでにこのブランチのフォルダーを開いている場合は取得を省略し、`compose.yaml` があるリポジトリ直下で実行します。
 
-認証情報・停止・リセット・テスト・Figma接続の範囲は [BACKENDS.md](docs/BACKENDS.md) を参照してください。新しいリポジトリは不要です。追加作業ブランチは `codex/dual-backend`。
+```sh
+# ローカル専用の認証情報を生成（既存ファイルは上書きしない）
+node scripts/init-docker.mjs
+
+# 既存側とPayload検証側をまとめてビルド・起動
+docker compose --env-file .env.docker --profile payload up -d --build --wait --wait-timeout 180
+```
+
+初回はイメージ・依存パッケージの取得に数分かかります。DBのマイグレーションと架空の商品・会員データの投入は自動で実行されます。通常の再起動では既存データを上書きしません。
+
+| 用途 | URL |
+| --- | --- |
+| 既存サイト：React＋NestJS＋Prisma＋PostgreSQL | [http://localhost:8080](http://localhost:8080) |
+| 検証サイト：同じReact＋Payload＋独立PostgreSQL | [http://localhost:8081](http://localhost:8081) |
+| Payload管理画面 | [http://localhost:3002/admin](http://localhost:3002/admin) |
+
+### ログイン情報
+
+生成された `.env.docker` をローカルのエディタで確認します。このファイルはGit管理対象外です。
+
+- ショップ会員：`alice@example.test` または `bob@example.test`。パスワードは `DEMO_PASSWORD` の値。
+- Payload管理者：`PAYLOAD_ADMIN_EMAIL` と `PAYLOAD_ADMIN_PASSWORD` の値。
+- ゲストでも商品閲覧・カート操作ができます。会員ごとのカート、既存側とPayload側のDBはそれぞれ独立しています。
+
+### 停止・再起動・更新
+
+```sh
+# 停止（DBの保存内容は残す）
+docker compose --env-file .env.docker --profile payload down
+
+# 次回の起動
+docker compose --env-file .env.docker --profile payload up -d --wait --wait-timeout 180
+
+# コードを更新した後は再ビルドして起動
+docker compose --env-file .env.docker --profile payload up -d --build --wait --wait-timeout 180
+```
+
+`down -v` はDBの保存内容も削除するため、通常の停止には使用しません。
+
+### 片方の環境だけ起動
+
+```sh
+# 既存側だけ（localhost:8080）
+docker compose --env-file .env.docker up -d --build --wait --wait-timeout 180
+
+# Payload検証側だけ（localhost:8081、管理画面localhost:3002）
+docker compose --env-file .env.docker --profile payload up -d --build --wait --wait-timeout 180 payload-web
+```
+
+すでに両方が起動中の場合、上記コマンドはもう片方を停止しません。片方だけに切り替える場合は先に両環境を `down` してください。
+
+### 起動できないとき
+
+```sh
+# コンテナの状態を確認
+docker compose --env-file .env.docker --profile payload ps
+
+# APIの直近のログを確認
+docker compose --env-file .env.docker --profile payload logs --tail 80 native-api payload-api
+```
+
+Dockerに接続できない場合はDocker Desktopの起動を確認します。環境変数不足の場合は `node scripts/init-docker.mjs` を実行し、`.env.docker` があることを確認してください。ポート使用中の場合は競合するアプリを停止します。
+
+データのリセット、テスト、Figma／Make接続の範囲は [BACKENDS.md](docs/BACKENDS.md) を参照してください。新しいリポジトリは不要です。公開済みSitesデモはAPIモック版で、このローカルDBには接続しません。
 
 ## GitHubへの配置
 
