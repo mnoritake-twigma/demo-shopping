@@ -48,7 +48,7 @@ test("real API shopping and account cart isolation", async ({ page }) => {
 });
 test("Payload admin sign-in page", async ({ page }, info) => {
   test.skip(!info.project.name.startsWith("payload"));
-  await page.goto("http://localhost:3002/admin/login");
+  await page.goto((process.env.PAYLOAD_ADMIN_BROWSER_URL ?? "http://localhost:3002") + "/admin/login");
   await expect(page.locator('input[name="email"]')).toBeVisible();
   await expect(page.locator('input[name="password"]')).toBeVisible();
 });

@@ -1,6 +1,13 @@
 # PULSE STORE
 
-商品検索・詳細・カート・ゲスト／会員ログインを備えたECデモです。**フロント・バックエンド・DBをすべてDockerで動かします。** ホスト側での `npm ci` や `npm run dev` は不要です。
+商品検索・詳細・カート・ゲスト／会員ログインを備えたECデモです。**通常の実システムデモはフロント・バックエンド・DBをすべてDockerで動かします。** ホスト側でのnpm操作は不要です。
+
+改修前の固定版: **`demo-baseline-v1`**。画面・技術スタック・環境変数・DS利用箇所・検証結果・Figma取り込み手順は [ベースライン確認書](docs/DEMO-BASELINE.md) にまとめています。GitタグにDBや資格情報は含まれません。
+
+| 用途 | 起動方式 |
+| --- | --- |
+| 既存システムとPayload検証側を実APIでデモする | 以下のDocker手順 |
+| Figma Code Layersへフロントを取り込む | 下記「Figma Code Layers用」のモック起動。Docker不要 |
 
 ## ローカルで使う
 
@@ -122,13 +129,26 @@ docker compose --env-file .env.docker --profile payload up -d --build --wait --w
 
 初回はイメージや依存パッケージの取得に数分かかります。DBのマイグレーションと架空の商品・会員データの投入は自動です。通常の起動では既存データを上書きしません。
 
+## Figma Code Layers用（フロント単体のモック）
+
+Figmaではリポジトリルートを対象に、Node 24.22.1以上で実行します。通常のDocker起動時にはこの手順は不要です。
+
+```sh
+npm ci
+npm run dev:figma
+```
+
+指定された `PORT`（未指定時5173）で待ち受けます。バックエンド・DB・秘密の環境変数は不要です。ビルドは `npm run build`、出力は `dist`。商品・検索・詳細・カートをデモできますが、会員ログインとPayload管理画面は実API版のみです。
+
+GitHubからの取り込みは `codex/demo-baseline-v1` ブランチを選択します。Service Workerとストレージが必要で、Figma内での実行は未確認です。[取り込み手順・技術的制約](docs/DEMO-BASELINE.md#figma-code-layersへの取り込み)を参照してください。
+
 ## 実装範囲と開発資料
 
 - 8商品の一覧・検索、カテゴリー／価格／在庫フィルター、並び替え
 - 商品詳細、カート追加／数量変更／削除、税込価格・送料・合計、DB保存
 - ゲストセッション・会員ログイン、PC／スマートフォン対応
 
-比較・お気に入り・お問い合わせ・決済・注文は未実装です。公開済みSitesデモはAPIモック版で、このDocker環境には接続していません。
+今後の新機能デモでは **お気に入り・クーポン・お問い合わせ** の追加を予定しています。仕様・順序は未確定で、このベースラインには含めません。比較・決済・注文も未実装です。公開済みSitesデモはAPIモック版で、このDocker環境には接続していません。
 
 フロントはReact 18＋Vite 6＋Tailwind 3＋TypeScript、UI部品は `@mnoritake-figma/ds@0.1.0` を使用しています。
 
@@ -142,7 +162,7 @@ docker compose --env-file .env.docker --profile payload up -d --build --wait --w
 
 [バックエンド構成・開発者向けテスト手順](docs/BACKENDS.md) / [API契約](docs/API.md) / [品質検証記録](docs/QA.md) / [デモ手順](docs/DEMO-GUIDE.md) / [DS利用ルール](docs/DESIGN-SYSTEM.md)
 
-リンク先のnpmコマンドは開発者向けのテスト用です。通常の起動に実行する必要はありません。
+リンク先のテスト用npmコマンドは、通常のDocker起動には不要です。Lintは未設定のため `npm run lint` は実行できません。その他の検証結果はベースライン確認書を参照してください。
 
 ## 素材・ライセンス
 

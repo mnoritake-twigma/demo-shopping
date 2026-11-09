@@ -12,7 +12,9 @@ export default defineConfig({
           ? devices["iPhone 13"]
           : devices["Desktop Chrome"]),
         defaultBrowserType: "chromium" as const,
-        baseURL: "http://localhost:" + (backend === "native" ? "8080" : "8081"),
+        baseURL: backend === "native"
+          ? (process.env.NATIVE_BROWSER_URL ?? "http://localhost:8080")
+          : (process.env.PAYLOAD_BROWSER_URL ?? "http://localhost:8081"),
       },
     })),
   ),

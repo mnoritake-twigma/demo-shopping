@@ -1,0 +1,17 @@
+services:
+  native-api:
+    image: pulse-shopping-native-api:latest
+    ports: !override ["127.0.0.1:13001:3001"]
+    environment:
+      ALLOWED_ORIGINS: http://localhost:18080,http://127.0.0.1:18080
+  native-web:
+    image: pulse-shopping-native-web:latest
+    ports: !override ["127.0.0.1:18080:80"]
+  payload-api:
+    image: pulse-shopping-payload-api:latest
+    ports: !override ["127.0.0.1:13002:3002"]
+    environment:
+      ALLOWED_ORIGINS: http://localhost:18081,http://127.0.0.1:18081,http://localhost:13002
+  payload-web:
+    image: pulse-shopping-payload-web:latest
+    ports: !override ["127.0.0.1:18081:80"]

@@ -2,8 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 const endpoints = [
-  ["native", "http://localhost:8080/api"],
-  ["payload", "http://localhost:8081/api"],
+  ["native", process.env.NATIVE_TEST_URL ?? "http://localhost:8080/api"],
+  ["payload", process.env.PAYLOAD_TEST_URL ?? "http://localhost:8081/api"],
 ];
 const password = process.env.DEMO_PASSWORD;
 if (!password) throw new Error("Load .env.docker before running tests");
@@ -193,7 +193,7 @@ test("same product DTOs, separate Payload administration and data", async () => 
     await call(native, "/categories"),
     await call(validation, "/categories"),
   );
-  const root = "http://localhost:3002/api";
+  const root = process.env.PAYLOAD_ADMIN_TEST_URL ?? "http://localhost:3002/api";
   const anon = await fetch(root + "/shop-users");
   assert.ok([401, 403].includes(anon.status));
   const login = await fetch(root + "/admins/login", {
