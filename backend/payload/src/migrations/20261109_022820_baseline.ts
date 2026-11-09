@@ -4,138 +4,138 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
    CREATE TYPE "public"."enum_shop_users_kind" AS ENUM('guest', 'member');
   CREATE TABLE "admins_sessions" (
-  	"_order" integer NOT NULL,
-  	"_parent_id" integer NOT NULL,
-  	"id" varchar PRIMARY KEY NOT NULL,
-  	"created_at" timestamp(3) with time zone,
-  	"expires_at" timestamp(3) with time zone NOT NULL
+    "_order" integer NOT NULL,
+    "_parent_id" integer NOT NULL,
+    "id" varchar PRIMARY KEY NOT NULL,
+    "created_at" timestamp(3) with time zone,
+    "expires_at" timestamp(3) with time zone NOT NULL
   );
-  
+
   CREATE TABLE "admins" (
-  	"id" serial PRIMARY KEY NOT NULL,
-  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
-  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
-  	"email" varchar NOT NULL,
-  	"reset_password_token" varchar,
-  	"reset_password_expiration" timestamp(3) with time zone,
-  	"salt" varchar,
-  	"hash" varchar,
-  	"reset_password_requested_at" timestamp(3) with time zone,
-  	"login_attempts" numeric DEFAULT 0,
-  	"lock_until" timestamp(3) with time zone
+    "id" serial PRIMARY KEY NOT NULL,
+    "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+    "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+    "email" varchar NOT NULL,
+    "reset_password_token" varchar,
+    "reset_password_expiration" timestamp(3) with time zone,
+    "salt" varchar,
+    "hash" varchar,
+    "reset_password_requested_at" timestamp(3) with time zone,
+    "login_attempts" numeric DEFAULT 0,
+    "lock_until" timestamp(3) with time zone
   );
-  
+
   CREATE TABLE "categories" (
-  	"id" serial PRIMARY KEY NOT NULL,
-  	"external_id" varchar NOT NULL,
-  	"name" varchar NOT NULL,
-  	"label" varchar NOT NULL,
-  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
-  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+    "id" serial PRIMARY KEY NOT NULL,
+    "external_id" varchar NOT NULL,
+    "name" varchar NOT NULL,
+    "label" varchar NOT NULL,
+    "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+    "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
   );
-  
+
   CREATE TABLE "products" (
-  	"id" serial PRIMARY KEY NOT NULL,
-  	"external_id" varchar NOT NULL,
-  	"slug" varchar NOT NULL,
-  	"name" varchar NOT NULL,
-  	"subtitle" varchar NOT NULL,
-  	"description" varchar NOT NULL,
-  	"category" varchar NOT NULL,
-  	"price" numeric NOT NULL,
-  	"currency" varchar NOT NULL,
-  	"stock" numeric NOT NULL,
-  	"image" varchar NOT NULL,
-  	"image_alt" varchar NOT NULL,
-  	"material" varchar NOT NULL,
-  	"dimensions" varchar NOT NULL,
-  	"color" varchar NOT NULL,
-  	"featured" boolean DEFAULT false,
-  	"published_at" timestamp(3) with time zone NOT NULL,
-  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
-  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+    "id" serial PRIMARY KEY NOT NULL,
+    "external_id" varchar NOT NULL,
+    "slug" varchar NOT NULL,
+    "name" varchar NOT NULL,
+    "subtitle" varchar NOT NULL,
+    "description" varchar NOT NULL,
+    "category" varchar NOT NULL,
+    "price" numeric NOT NULL,
+    "currency" varchar NOT NULL,
+    "stock" numeric NOT NULL,
+    "image" varchar NOT NULL,
+    "image_alt" varchar NOT NULL,
+    "material" varchar NOT NULL,
+    "dimensions" varchar NOT NULL,
+    "color" varchar NOT NULL,
+    "featured" boolean DEFAULT false,
+    "published_at" timestamp(3) with time zone NOT NULL,
+    "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+    "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
   );
-  
+
   CREATE TABLE "shop_users" (
-  	"id" serial PRIMARY KEY NOT NULL,
-  	"external_id" varchar NOT NULL,
-  	"email" varchar,
-  	"name" varchar NOT NULL,
-  	"kind" "enum_shop_users_kind" NOT NULL,
-  	"password_hash" varchar,
-  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
-  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+    "id" serial PRIMARY KEY NOT NULL,
+    "external_id" varchar NOT NULL,
+    "email" varchar,
+    "name" varchar NOT NULL,
+    "kind" "enum_shop_users_kind" NOT NULL,
+    "password_hash" varchar,
+    "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+    "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
   );
-  
+
   CREATE TABLE "shop_sessions" (
-  	"id" serial PRIMARY KEY NOT NULL,
-  	"token_hash" varchar NOT NULL,
-  	"user_id" varchar NOT NULL,
-  	"expires_at" timestamp(3) with time zone NOT NULL,
-  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
-  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+    "id" serial PRIMARY KEY NOT NULL,
+    "token_hash" varchar NOT NULL,
+    "user_id" varchar NOT NULL,
+    "expires_at" timestamp(3) with time zone NOT NULL,
+    "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+    "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
   );
-  
+
   CREATE TABLE "cart_lines" (
-  	"id" serial PRIMARY KEY NOT NULL,
-  	"key" varchar NOT NULL,
-  	"user_id" varchar NOT NULL,
-  	"product_id" varchar NOT NULL,
-  	"quantity" numeric NOT NULL,
-  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
-  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+    "id" serial PRIMARY KEY NOT NULL,
+    "key" varchar NOT NULL,
+    "user_id" varchar NOT NULL,
+    "product_id" varchar NOT NULL,
+    "quantity" numeric NOT NULL,
+    "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+    "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
   );
-  
+
   CREATE TABLE "payload_kv" (
-  	"id" serial PRIMARY KEY NOT NULL,
-  	"key" varchar NOT NULL,
-  	"data" jsonb NOT NULL
+    "id" serial PRIMARY KEY NOT NULL,
+    "key" varchar NOT NULL,
+    "data" jsonb NOT NULL
   );
-  
+
   CREATE TABLE "payload_locked_documents" (
-  	"id" serial PRIMARY KEY NOT NULL,
-  	"global_slug" varchar,
-  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
-  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+    "id" serial PRIMARY KEY NOT NULL,
+    "global_slug" varchar,
+    "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+    "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
   );
-  
+
   CREATE TABLE "payload_locked_documents_rels" (
-  	"id" serial PRIMARY KEY NOT NULL,
-  	"order" integer,
-  	"parent_id" integer NOT NULL,
-  	"path" varchar NOT NULL,
-  	"admins_id" integer,
-  	"categories_id" integer,
-  	"products_id" integer,
-  	"shop_users_id" integer,
-  	"shop_sessions_id" integer,
-  	"cart_lines_id" integer
+    "id" serial PRIMARY KEY NOT NULL,
+    "order" integer,
+    "parent_id" integer NOT NULL,
+    "path" varchar NOT NULL,
+    "admins_id" integer,
+    "categories_id" integer,
+    "products_id" integer,
+    "shop_users_id" integer,
+    "shop_sessions_id" integer,
+    "cart_lines_id" integer
   );
-  
+
   CREATE TABLE "payload_preferences" (
-  	"id" serial PRIMARY KEY NOT NULL,
-  	"key" varchar,
-  	"value" jsonb,
-  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
-  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+    "id" serial PRIMARY KEY NOT NULL,
+    "key" varchar,
+    "value" jsonb,
+    "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+    "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
   );
-  
+
   CREATE TABLE "payload_preferences_rels" (
-  	"id" serial PRIMARY KEY NOT NULL,
-  	"order" integer,
-  	"parent_id" integer NOT NULL,
-  	"path" varchar NOT NULL,
-  	"admins_id" integer
+    "id" serial PRIMARY KEY NOT NULL,
+    "order" integer,
+    "parent_id" integer NOT NULL,
+    "path" varchar NOT NULL,
+    "admins_id" integer
   );
-  
+
   CREATE TABLE "payload_migrations" (
-  	"id" serial PRIMARY KEY NOT NULL,
-  	"name" varchar,
-  	"batch" numeric,
-  	"updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
-  	"created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
+    "id" serial PRIMARY KEY NOT NULL,
+    "name" varchar,
+    "batch" numeric,
+    "updated_at" timestamp(3) with time zone DEFAULT now() NOT NULL,
+    "created_at" timestamp(3) with time zone DEFAULT now() NOT NULL
   );
-  
+
   ALTER TABLE "admins_sessions" ADD CONSTRAINT "admins_sessions_parent_id_fk" FOREIGN KEY ("_parent_id") REFERENCES "public"."admins"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_parent_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."payload_locked_documents"("id") ON DELETE cascade ON UPDATE no action;
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_admins_fk" FOREIGN KEY ("admins_id") REFERENCES "public"."admins"("id") ON DELETE cascade ON UPDATE no action;
