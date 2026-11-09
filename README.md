@@ -52,12 +52,12 @@ npm run test:e2e
 
 ## GitHubへの配置
 
-推奨リポジトリ: **mnoritake-twigma/pulse-store-demo**（未作成）。DSのリポジトリは変更していません。
+GitHubリポジトリ: **[mnoritake-twigma/demo-shopping](https://github.com/mnoritake-twigma/demo-shopping)**。DSのリポジトリは変更していません。
 
-このフォルダーはローカルGitとして用意されています。Sitesのプレビュー配布用remoteとGitHubを区別するため、GitHubは`github`というremote名にします。GitHubでREADMEなしの空リポジトリを作成後:
+このフォルダーはローカルGitとして用意されています。Sitesのプレビュー配布用remoteとGitHubを区別するため、GitHubは`github`というremote名にします。既存チェックアウトには `github` remoteを設定済みです。別のチェックアウトから接続する場合:
 
 ```sh
-git remote add github https://github.com/mnoritake-twigma/pulse-store-demo.git
+git remote add github https://github.com/mnoritake-twigma/demo-shopping.git
 git push -u github main
 git push -u github codex/ec-baseline
 ```

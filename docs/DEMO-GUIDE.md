@@ -22,9 +22,9 @@
 
 ## 準備するもの・ユーザー操作
 
-- 新規GitHubリポジトリ推奨名: `mnoritake-twigma/pulse-store-demo`。既存DSリポジトリに混ぜない。
+- GitHubリポジトリ: `mnoritake-twigma/demo-shopping`。既存DSリポジトリに混ぜない。
 - 初期ベースをmainへ置き、改修作業は `codex/ec-baseline`、デモの新機能は別ブランチに分ける。
-- GitHubリポジトリはこのタスクで作成していない。空のリポジトリを作り、README記載の手順でソースをpushする。
+- ユーザーが作成したGitHubリポジトリへベース実装を配置。追加変更はREADME記載のremoteへpushする。
 - 新しいCodexチャット／追加プロンプトは起動に不要。このフォルダーをプロジェクトとして開けばよい。
 - Figmaの接続対象には新しいECリポジトリを選ぶ。DSのCode Connect公開と、Make等で利用するコードソース設定は別。既存の接続を自動的に切り替えていない。
 - Figma／Payload内の新規プロジェクト、Specsの実ファイル、Guidelines設定、Make接続は本タスクでは作成・検証していない。
