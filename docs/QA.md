@@ -9,7 +9,7 @@
 | ブラウザ操作 | 5シナリオ × PC／スマートフォン = 10件成功 |
 | axe自動アクセシビリティ検査 | 一覧・詳細・空カート・商品入りカートで対象ルールの違反0 |
 | レスポンシブ | 1440px・390pxで横スクロールなし、スクリーンショット確認済み |
-| vendor整合性 | 364ファイルが指定コミットの元ファイルとbyte-for-byte一致 |
+| npmパッケージ移行 | 同梱ソースを削除し、配布tarball経由でビルド・25テスト成功 |
 | npm依存監査 | 0 vulnerabilities（インストール時に検出した検証ツールの問題はVitest 4.1.12へ更新して解消） |
 
 ## 検証した内容
@@ -34,3 +34,11 @@
 実Payload環境／Figma Code Layers／Makeへの接続、Code Connectの再公開、認証・複数ユーザー・決済は未検証。モバイルはChromiumのiPhoneサイズエミュレーションであり、実機Safari検証ではない。axeの自動検査はアクセシビリティ全体の適合保証ではない。写真は仮の商品イメージ。
 
 [PC画面](desktop.png) / [スマートフォン画面](mobile.png)
+
+## npm配布への切り替え
+
+`@mnoritake-figma/ds@0.1.0` の配布物をインストールして再検証。DS自身でも公開exports・287アイコン・Reactサーバーレンダリング・元トークンとの一致を検証済み。配布対象はJS／型／CSS・README・MIT LICENSEで、認証情報やデモデータは含まない。
+
+DSリポジトリのGitHub Actionsでも npm package checks と Validate PULSE Code Connect が成功。初回公開対象は `@mnoritake-figma/ds@0.1.0`、検証済みtarballのSHA-1は `8e507de6b5c0a6ebc472a790217429f6ad0c7a9b`。
+
+公開npmレジストリで同じSHA-1を確認し、ECサイトは `@mnoritake-figma/ds` をバージョン `0.1.0` に固定。package-lock.jsonもregistry.npmjs.orgの配布URLへ更新済み。

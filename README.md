@@ -1,6 +1,6 @@
 # PULSE STORE
 
-React 18 + Vite 6 + Tailwind 3 + TypeScriptの独立したECデモ。mnoritake-dsの元コンポーネントとCSSを再利用しています。
+React 18 + Vite 6 + Tailwind 3 + TypeScriptの独立したECデモ。npmパッケージ `@mnoritake-figma/ds` のコンポーネントとCSSを利用しています。
 
 ## 起動
 
@@ -31,7 +31,6 @@ src/
   api/client.ts       HTTP境界（画面はseedを参照しない）
   domain/models.ts    共通DTO
   mocks/              ダミーデータ・API処理・モックルーター
-  vendor/mnoritake-ds/ 固定コミットの元コード・CSS・MITライセンス
 public/products/      ローカル保存したデモ写真
 public/mockServiceWorker.js
 ```
@@ -41,7 +40,6 @@ public/mockServiceWorker.js
 ```sh
 npm run build
 npm test
-npm run check:vendor
 npx playwright install chromium
 npm run test:e2e
 ```
@@ -70,4 +68,4 @@ Sitesの公開設定は`.openai/hosting.json`に入っています。別のSite�
 
 ## 素材・ライセンス
 
-DS: [mnoritake-ds](https://github.com/mnoritake-twigma/mnoritake-ds)、固定コミット `957761d94b42e9b2b8887e357b12d6e23518efba`、元MITライセンス保持。写真出典は[ASSETS.md](docs/ASSETS.md)。商品情報はデモ用の架空データです。
+DS: `@mnoritake-figma/ds@0.1.0`。元ソース: [mnoritake-ds](https://github.com/mnoritake-twigma/mnoritake-ds)、固定コミット `957761d94b42e9b2b8887e357b12d6e23518efba`、元MITライセンス保持。写真出典は[ASSETS.md](docs/ASSETS.md)。商品情報はデモ用の架空データです。

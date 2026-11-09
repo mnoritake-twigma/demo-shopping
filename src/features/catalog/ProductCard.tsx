@@ -1,5 +1,5 @@
-import { Tag } from 'primitives';
-import { IconArrowUpRight } from 'icons';
+import { Tag } from '@mnoritake-figma/ds';
+import { IconArrowUpRight } from '@mnoritake-figma/ds/icons';
 import type { Product } from '../../domain/models';
 import { yen } from '../../domain/models';
 export function ProductCard({product:p}:{product:Product}){

@@ -9,14 +9,14 @@
 
 1. 商品一覧を開く。家具・照明に絞り、商品詳細からカートへ入れる。
 2. 「既存サイトの機能が動く」ことを示した後、比較機能などの新しい要望を提示する。
-3. Code Layersで扱うコードは `src/features/catalog`、共通部品は `src/vendor/mnoritake-ds`。APIは `src/api/client.ts`。
-4. Guidelinesへ持ち込む実装ルール: DSの部品とsemantic tokenを再利用する。新しい画面の追加をvendor改変で行わない。ButtonはonPress、InputFieldはonChange。税込JPY整数、在庫切れ・失敗状態も設計する。
+3. Code Layersで扱うコードは `src/features/catalog`、共通部品はnpmの `@mnoritake-figma/ds`（元ソースはDSリポジトリの `src/ui`）。APIは `src/api/client.ts`。
+4. Guidelinesへ持ち込む実装ルール: DSの部品とsemantic tokenを再利用する。新しい画面の追加をパッケージ内部の直接改変で行わない。ButtonはonPress、InputFieldはonChange。税込JPY整数、在庫切れ・失敗状態も設計する。
 5. Specsへ記載する元仕様は `API.md` と現在の受け入れ条件。新機能の仕様を追加してから実装へ進む。
 6. Make + Payloadのデモは別途準備した検証環境へ接続後に実施。今回のMSWによる保存をPayloadの保存と説明しない。
 
 ## 次の機能に進むときのプロンプト例
 
-「このリポジトリのdocs/DESIGN-SYSTEM.mdとdocs/API.mdを読み、既存の一覧・検索・カートを維持したまま、Specsで合意した比較機能を追加してください。vendorの元コンポーネントは改変せずに再利用し、比較の選択上限・空状態・モバイルの操作を定義してテストしてください。」
+「このリポジトリのdocs/DESIGN-SYSTEM.mdとdocs/API.mdを読み、既存の一覧・検索・カートを維持したまま、Specsで合意した比較機能を追加してください。npmパッケージの元コンポーネントは改変せずに再利用し、比較の選択上限・空状態・モバイルの操作を定義してテストしてください。」
 
 これは次の作業用の例であり、本実装には比較機能を追加していない。
 

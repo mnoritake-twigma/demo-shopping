@@ -17,13 +17,21 @@
 - `src/figma`: Code Connect。READMEによると97コンポーネント／compositionと1,722アイコン接続。
 - `scripts/tokens`: Figma出力の生成スクリプト。元SDSの入力が残っており、今回は実行しない。
 
-## 取り込み方
+## npmパッケージによる利用
 
-npm公開用のexportsを備えたライブラリではなく `private: true` のViteアプリのため、Git依存としてinstallする代わりに必要なUIソースを `src/vendor/mnoritake-ds` に同梱。初回起動にGitHubトークンは不要。
+`@mnoritake-figma/ds@0.1.0` を依存関係として導入。初期実装のvendorコピーとVite／TypeScriptの専用aliasは削除した。React 18.3はpeer dependencyとして共有し、react-aria-components／clsxはDS側が管理する。
 
-Button、InputField、SelectField／SelectItem、CheckboxField、Tag、Accordion／AccordionItem、アイコンを**元のまま**利用。CSS、関連UI utilities／hooks／layout／imagesと型宣言も同梱し、MIT LICENSEを保持。バレルimportの依存解決のため未使用primitivesも含む。Tree shakingで未使用JSを除去するが、共通CSSは広めに含まれる。
+```tsx
+import { Button, InputField } from '@mnoritake-figma/ds';
+import { IconShoppingBag } from '@mnoritake-figma/ds/icons';
+import '@mnoritake-figma/ds/styles.css';
+```
 
-`docs/vendor-manifest.json` が同梱ファイルのSHA-256一覧。`npm run check:vendor` で改変を検出できる。Vite・TypeScriptのalias (`primitives`, `icons`, `utils`, `layout`, `hooks`, `images`) と `allowImportingTsExtensions` を上流に合わせた。`index.d.ts` はCSS変数の型拡張に必要。
+配布設定はDSリポジトリの `packages/ds`。元の `src/ui` とCSSから、ビルド時のみ作業コピーを作り、内部aliasを相対参照に変換してJS・型定義を生成する。元コンポーネントの振る舞いは変更していない。パッケージはES Modules、React 18.3対応。React 19は未検証。
+
+styles.cssはコンポーネントCSSに加えてreset・body・タイポグラフィのグローバル指定を含むため、アプリCSSより先に一度だけimportする。tokens.cssは変数のみ。Tailwind preflightは引き続き無効。
+
+`docs/vendor-manifest.json` は移行前の同梱版の来歴として保持している。現在のファイル照合用ではない。
 
 ## そのまま利用しなかった点
 
@@ -42,13 +50,6 @@ Tailwind 3（preflight無効）とEC専用CSSを併用。既存のButton等の�
 
 二次背景上のsecondary textはコントラスト4.22:1だったため、hero・注文概要の補助文だけ、既存の強いtext tokenを選択。元DSのファイルは変更していない。これはGuidelinesで説明できる実装上の判断。
 
-## 再利用例
+## 更新方法
 
-```tsx
-import { Button, InputField } from 'primitives';
-import { IconShoppingBag } from 'icons';
-<Button onPress={addToCart}><IconShoppingBag />カートに追加</Button>
-<InputField label="商品を検索" value={query} onChange={setQuery} />
-```
-
-上流の追加更新はコミット固定を更新し、vendorを入れ替え、manifestを再生成して差分とテストを確認する。トークン同期やCode Connect再公開は別作業。
+DSリポジトリで修正して次のnpmバージョンを公開し、EC側でバージョンを更新してbuild／test／test:e2eを実行する。node_modulesを直接編集しない。Figmaとのトークン同期やCode Connect再公開は別作業。

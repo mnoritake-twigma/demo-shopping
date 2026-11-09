@@ -1,6 +1,6 @@
 import { useEffect,useState } from 'react';
-import { Accordion, AccordionItem, Button, SelectField, SelectItem, Tag } from 'primitives';
-import { IconArrowLeft, IconShoppingBag, IconTruck } from 'icons';
+import { Accordion, AccordionItem, Button, SelectField, SelectItem, Tag } from '@mnoritake-figma/ds';
+import { IconArrowLeft, IconShoppingBag, IconTruck } from '@mnoritake-figma/ds/icons';
 import { api } from '../../api/client';
 import type { Product } from '../../domain/models';
 import { yen } from '../../domain/models';

@@ -1,5 +1,5 @@
-import { Button } from 'primitives';
-import { IconArrowLeft, IconMinus, IconPlus, IconShoppingBag, IconTrash2 } from 'icons';
+import { Button } from '@mnoritake-figma/ds';
+import { IconArrowLeft, IconMinus, IconPlus, IconShoppingBag, IconTrash2 } from '@mnoritake-figma/ds/icons';
 import { yen } from '../../domain/models';
 import { useCart } from './CartProvider';
 export function CartPage(){

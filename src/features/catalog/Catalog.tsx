@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Button, CheckboxField, InputField, SelectField, SelectItem } from 'primitives';
-import { IconArrowRight, IconSliders } from 'icons';
+import { Button, CheckboxField, InputField, SelectField, SelectItem } from '@mnoritake-figma/ds';
+import { IconArrowRight, IconSliders } from '@mnoritake-figma/ds/icons';
 import { api } from '../../api/client';
 import type { Category, Page, Product, ProductQuery } from '../../domain/models';
 import { ProductCard } from './ProductCard';

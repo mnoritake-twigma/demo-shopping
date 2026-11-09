@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Button } from 'primitives';
-import { IconShoppingBag, IconTruck, IconBox, IconCheckCircle } from 'icons';
+import { Button } from '@mnoritake-figma/ds';
+import { IconShoppingBag, IconTruck, IconBox, IconCheckCircle } from '@mnoritake-figma/ds/icons';
 import { CartProvider, useCart } from './features/cart/CartProvider';
 import { CartPage } from './features/cart/CartPage';
 import { Catalog } from './features/catalog/Catalog';
